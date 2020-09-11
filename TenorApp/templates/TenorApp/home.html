@@ -1,0 +1,102 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Vote for your favorite</h1>
+<div class="HackerList row">
+<script>
+.zoom {
+	overflow: hidden;
+}
+
+.zoom img {
+	max-width: 100%;
+	-moz-transition: all 0.3s;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+.zoom:hover img {
+	-moz-transform: scale(1.1);
+	-webkit-transform: scale(1.1);
+	transform: scale(1.1);
+}
+
+.text-item {
+	position: absolute;
+	left: 5%;
+	right: 5%;
+	bottom: 20px;
+	z-index: 10;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	color: #ffffff;
+	text-align: center;
+	font-weight: 700;
+	text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+</script>
+</div>
+<script>
+    $(function() {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    //want for cookie
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var HList = '';
+        var csrfToken = getCookie('csrftoken')
+        console.log(csrfToken)
+        $.ajax({
+            url: 'https://api.tenor.com/v1/search?q=hacker&key=NSPGMGQWW3D7&limit=20',
+            method: 'GET',
+            success: function(data) {
+                for (i in data.results) {
+                    if (i == 19) {
+                        HList = HList + data.results[i]['id'];
+                    } else {
+                        HList = HList + data.results[i]['id'] + ',';
+                    }
+                } //endfor
+                $.ajax({
+                    url: `{% url 'TenorApp:listing' %}`, 
+                    type: 'post',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                    data: {
+                        'data': HList,
+                    },
+                    success: function(dataResp) {
+                        for (i in dataResp) {
+                            for (j in data.results) {
+                                if (dataResp[i][0] == data.results[j]['id']) {
+                                    $('.HackerList').append(`
+                                    <div class="card bordermt-5 col-lg-4 col-md-6 col-sm-12" style="width: 18rem;">
+                                        <img class="card-img-top img-fluid" style="width: 100%; height:100%" src="${data.results[j]['media'][0]['gif']['url']}">
+                                            <div class="card-body "></div>
+                                            <div style="width: 100%;"  class="card-footer">
+                                            <a href="downvote/${dataResp[i][0]}" class="btn btn-danger float-left">${dataResp[i][2]} <i class="fa fa-thumbs-down"></i></a>
+                                           <a href="upvote/${dataResp[i][0]}" class="btn btn-primary float-right">${dataResp[i][1]} <i class="fa fa-thumbs-up"></i></a>
+                                        </div>
+                                    </div>
+                                    `)
+                                }
+                            }
+                        }
+                        // $('.HackerList').append()
+                    }
+                }); //end inner ajax
+            }
+        })
+    });
+</script>
+{% endblock %}
