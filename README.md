@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-Django. Pip, Python 3.8.5
+Django 3.1.*, Pip e Python 3.8.*
 
 ### Installation Guide
 
@@ -31,10 +31,11 @@ cd ..
 ```
 pip install -r requirements.txt
 ```
-6- start server
+6- Start development server
 ```
 python manage.py runserver
 ```
+7- acess the server 
 
-
+http://127.0.0.1:8000
 
